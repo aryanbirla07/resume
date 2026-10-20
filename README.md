@@ -85,6 +85,8 @@ All personal details, jobs and results are **explicit sample placeholders**, not
 9. Redesigned world atlas, project case-study panel, HUD, status toasts and résumé fallback.
 10. Added data + source checks and an accessible reduced-motion switch.
 
+check it properly 
+
 ## Visual fidelity / validation disclosures
 
 - The **interactive visual preview** has been tested in headless Chromium: it shows the preview UI, scroll updates the arena counter, the Atlas opens and no JavaScript errors occurred during that test.
