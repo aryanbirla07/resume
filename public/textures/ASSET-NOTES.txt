@@ -1,0 +1,6 @@
+Original procedural prototype texture maps for the Enchanted Journey V4.
+
+The aged-stone color/normal/roughness, timber and leather maps were created with scripts/generate_cinematic_textures.py.
+The earlier roof and ground prototypes came from scripts/generate_textures.py.
+These are procedural design assets, not photographs or photogrammetry scans.
+Replace with appropriately licensed production PBR sets for true realism.
