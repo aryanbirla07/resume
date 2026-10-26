@@ -3,6 +3,13 @@ import {ArrowLeft,ArrowUpRight,Download,Mail,Github,Linkedin} from 'lucide-react
 import {portfolio} from '../data/portfolio';
 
 const LinkButton=({href,children})=>href?<a href={href} target={href.startsWith('mailto:')?'_self':'_blank'} rel="noreferrer" className="resume-link">{children}<ArrowUpRight size={13}/></a>:null;
+const displayText=(value,fallback='—')=>{
+  if(value===null||value===undefined||value==='')return fallback;
+  if(typeof value==='string'||typeof value==='number')return String(value);
+  if(Array.isArray(value))return value.map(item=>displayText(item,'')).filter(Boolean).join(' · ')||fallback;
+  if(typeof value==='object')return Object.values(value).map(item=>displayText(item,'')).filter(Boolean).join(' · ')||fallback;
+  return fallback;
+};
 
 export function ResumeView({embedded=false,onClose}){
   return <article className={'resume-view '+(embedded?'resume-embedded':'')} id="readable-resume">
@@ -27,7 +34,7 @@ export function ResumeView({embedded=false,onClose}){
         {portfolio.skills.map(skill=><div key={skill.group} className="resume-row"><strong>{skill.group}</strong><span>{skill.items.join(' · ')}</span></div>)}
       </section>
       <section className="span-two"><div className="kicker">04 / SELECTED WORK</div><h2>Things I’ve built.</h2>
-        {portfolio.projects.map(project=><div key={project.id} className="resume-entry"><div><small>{project.category}</small><h3>{project.title}</h3><p>{project.description}</p><p className="resume-muted">{project.stack.join(' / ')}</p></div>{project.href&&<LinkButton href={project.href}>View project</LinkButton>}</div>)}
+        {portfolio.projects.map(project=><div key={project.id} className="resume-entry"><div><small>{displayText(project.category,'PROJECT')}</small><h3>{displayText(project.title,'Selected work')}</h3><p>{displayText(project.description,'Project details will be added here.')}</p><p className="resume-muted">{displayText(project.stack,'Details coming soon').replaceAll(' · ',' / ')}</p></div>{project.href&&<LinkButton href={project.href}>View project</LinkButton>}</div>)}
       </section>
       <section className="span-two"><div className="kicker">05 / EXPERIENCE</div><h2>Along the way.</h2>
         {portfolio.experience.map(exp=><div className="resume-entry" key={exp.id}><div><small>{exp.period}</small><h3>{exp.role}</h3><div className="resume-muted">{exp.company}</div><p>{exp.description}</p></div></div>)}

@@ -15,7 +15,20 @@ class WorldBoundary extends React.Component{
   constructor(props){super(props);this.state={failed:false};}
   static getDerivedStateFromError(){return{failed:true};}
   componentDidCatch(error){console.error('3D experience unavailable. The content remains accessible.',error);}
-  render(){return this.state.failed?<div className="scene-fallback"/>:this.props.children;}
+  render(){return this.state.failed?<div className="scene-fallback" aria-label="Interactive scene unavailable"/>:this.props.children;}
+}
+
+function displayText(value,fallback='—'){
+  if(value===null||value===undefined||value==='')return fallback;
+  if(typeof value==='string'||typeof value==='number')return String(value);
+  if(Array.isArray(value))return value.map(item=>displayText(item,'')).filter(Boolean).join(' · ')||fallback;
+  if(typeof value==='object')return Object.values(value).map(item=>displayText(item,'')).filter(Boolean).join(' · ')||fallback;
+  return fallback;
+}
+
+function displayList(value){
+  if(!Array.isArray(value))return [];
+  return value.map(item=>displayText(item,'')).filter(Boolean);
 }
 
 function useAmbientSound(){
@@ -49,10 +62,29 @@ function Brand({onClick}){
 function Eyebrow({children,number}){return <div className="eyebrow">{number&&<span className="eyebrow-number">{number}</span>}<span className="eyebrow-line"/>{children}</div>;}
 function ActionLink({href,children}){return href?<a href={href} target="_blank" rel="noreferrer" className="text-link">{children}<ArrowUpRight size={15}/></a>:null;}
 
+function ProjectGallery({projects,onProject}){
+  return <div className="project-gallery" aria-label="Selected projects">
+    {projects.slice(0,4).map((project,index)=>{
+      const stack=displayList(project.stack);
+      const content=<>
+        <span className="project-card-index">{displayText(project.number,String(index+1).padStart(2,'0'))}</span>
+        <span className="project-card-category">{displayText(project.category,'PROJECT')}</span>
+        <strong>{displayText(project.title,'Selected work')}</strong>
+        <span className="project-card-description">{displayText(project.description,'Project details coming soon.')}</span>
+        <span className="project-card-stack">{stack.length?stack.slice(0,3).join(' · '):'Details coming soon'}</span>
+        <span className="project-card-link">{project.href?'OPEN PROJECT':'URL TO BE ADDED'} {project.href?<ArrowUpRight size={16}/>:<span aria-hidden="true">—</span>}</span>
+      </>;
+      return project.href?
+        <a key={project.id} className="project-card project-card-linkable" href={project.href} target="_blank" rel="noreferrer">{content}</a>:
+        <button key={project.id} className="project-card" onClick={()=>onProject(project)}>{content}</button>;
+    })}
+  </div>;
+}
+
 function Intro({onBegin,onAtlas}){
   return <div className="intro-screen">
-    <div className="intro-poster" aria-hidden="true"/>
-    <div className="intro-poster-shade" aria-hidden="true"/>
+    <div className="intro-atmosphere intro-depth-back" aria-hidden="true"/>
+    <div className="intro-atmosphere intro-depth-front" aria-hidden="true"/>
     <div className="intro-content">
       <Eyebrow number="PROLOGUE">A CHRONICLE OF CODE & CURIOSITY</Eyebrow>
       <div className="intro-index">ISSUE Nº 001 <span>—</span> 2026</div>
@@ -88,14 +120,15 @@ function AtlasModal({onClose,onTravel,currentIndex,unlocked}){
 }
 function ProjectModal({project,onClose}){
   if(!project)return null;
+  const stack=displayList(project.stack);
   return <div className="modal-shade" onMouseDown={onClose}>
     <div className="modal-content detail-modal" role="dialog" aria-modal="true" aria-label={`${project.title} details`} onMouseDown={e=>e.stopPropagation()}>
       <div className="modal-heading"><Eyebrow number={`ARCHIVE ${project.number}`}>PROJECT STUDY</Eyebrow><button onClick={onClose} className="bare-close" aria-label="Close project details"><X size={20}/></button></div>
       <div className="detail-visual" aria-hidden="true"><div className="detail-symbol"><Insignia size={106}/></div><span>SELECTED WORK — {project.number}</span></div>
-      <div className="fine-label">{project.category}</div>
-      <h2>{project.title}</h2>
-      <p className="modal-lead">{project.description}</p>
-      <div className="detail-lines"><div><small>TECHNOLOGIES</small><p>{project.stack.join(' / ')}</p></div><div><small>THE OUTCOME</small><p>{project.outcome}</p></div></div>
+      <div className="fine-label">{displayText(project.category,'PROJECT')}</div>
+      <h2>{displayText(project.title,'Selected work')}</h2>
+      <p className="modal-lead">{displayText(project.description,'Project details will be added here.')}</p>
+      <div className="detail-lines"><div><small>TECHNOLOGIES</small><p>{stack.length?stack.join(' / '):'Details coming soon'}</p></div><div><small>THE OUTCOME</small><p>{displayText(project.outcome,'Details coming soon')}</p></div></div>
       <div className="modal-actions">{project.href&&<ActionLink href={project.href}>LIVE PROJECT</ActionLink>}{project.source&&<ActionLink href={project.source}>SOURCE CODE</ActionLink>}{!project.href&&!project.source&&<span className="placeholder-note">Add verified project URLs in <code>src/data/portfolio.js</code>.</span>}</div>
     </div>
   </div>;
@@ -165,12 +198,12 @@ function StageContent({chapter,progress,onTravel,onProject}){
       <p>Ideas gathered along the way. These categories should ultimately contain only the tools you genuinely use.</p>
       <div className="archive-list">{portfolio.skills.slice(0,4).map((item,i)=><div key={item.id}><span>{String(i+1).padStart(2,'0')}</span><strong>{item.group}</strong><small>{item.items.slice(0,2).join(' · ')}</small></div>)}</div>
     </DisplayCard>;
-    case 'projects':return <DisplayCard chapter={chapter} wide>
-      <div className="fine-label">SELECTED CASE STUDIES</div><h2>Evidence, not<br/><em>enchantment.</em></h2>
-      <p>Behind every finished experience is a real problem, a series of decisions and a result worth explaining.</p>
-      <div className="selected-work">{portfolio.projects.map((item,i)=><button key={item.id} className="work-row" onClick={()=>onProject(item)}><span className="work-n">{item.number}</span><span className="work-copy"><small>{item.category}</small><strong>{item.title}</strong><span>{item.stack.join(' · ')}</span></span><span className="work-arrow"><ArrowUpRight size={18}/></span></button>)}</div>
-      <p className="placeholder-note">Demo entries — replace with actual projects, contributions and outcomes.</p>
-    </DisplayCard>;
+    case 'projects':return <section className="project-stage" aria-labelledby="project-stage-title">
+      <div className="project-stage-heading"><div><Eyebrow number={chapter.index}>{chapter.tag}</Eyebrow><div className="fine-label">SELECTED PROJECTS</div><h2 id="project-stage-title">Built for<br/><em>the real world.</em></h2></div><span className="project-stage-location">{chapter.location}</span></div>
+      <p className="project-stage-lead">Four selected pieces, presented directly. Open a verified project link or choose a card to read the available details.</p>
+      <ProjectGallery projects={portfolio.projects} onProject={onProject}/>
+      <div className="project-stage-foot">SELECTED WORK <span>/</span> FOUR STORIES <span>/</span> DIRECT LINKS WHERE VERIFIED</div>
+    </section>;
     case 'experience':return <DisplayCard chapter={chapter}>
       <div className="fine-label">AN EVOLVING PRACTICE</div><h2>Every chapter<br/><em>leaves a mark.</em></h2>
       <p>Work, lessons and the people who helped shape the next decision.</p>
@@ -215,7 +248,12 @@ function App(){
     const mq=window.matchMedia('(prefers-reduced-motion:reduce)');setReduceMotion(mq.matches);
     if(window.innerWidth<850||(navigator.deviceMemory&&navigator.deviceMemory<=4))setQuality('standard');
     try{const canvas=document.createElement('canvas');setWebgl(!!(canvas.getContext('webgl2')||canvas.getContext('webgl')));}catch{setWebgl(false);}
-    const follow=e=>{pointerRef.current={x:clamp01(e.clientX/window.innerWidth)*2-1,y:clamp01(e.clientY/window.innerHeight)*2-1};};
+    const follow=e=>{
+      const x=clamp01(e.clientX/window.innerWidth)*2-1,y=clamp01(e.clientY/window.innerHeight)*2-1;
+      pointerRef.current={x,y};
+      document.documentElement.style.setProperty('--pointer-x',`${x}`);
+      document.documentElement.style.setProperty('--pointer-y',`${y}`);
+    };
     window.addEventListener('pointermove',follow,{passive:true});return()=>window.removeEventListener('pointermove',follow);
   },[]);
   useEffect(()=>{startedRef.current=started;},[started]);
@@ -262,7 +300,7 @@ function App(){
   if(window.location.pathname.replace(/\/$/,'')==='/resume')return <ResumeView/>;
   return <div className={'site '+(started?'journey-active':'journey-intro')+(reduceMotion?' low-motion':'')}>
     <a className="skip-link" href="/resume">Skip animation and open readable resume</a>
-    <div className="scene-layer" aria-hidden="true"><WorldBoundary>{view3d?<World quality={quality} progressRef={progressRef} startedRef={startedRef} pointerRef={pointerRef}/>:<div className="scene-fallback"/>}</WorldBoundary></div>
+    <div className="scene-layer scene-depth-back" aria-hidden="true"><WorldBoundary>{view3d?<World quality={quality} progressRef={progressRef} startedRef={startedRef} pointerRef={pointerRef}/>:<div className="scene-fallback"/>}</WorldBoundary></div>
     <div className="world-veil" aria-hidden="true"/><div className="film-grain" aria-hidden="true"/>
     <header className="topbar">
       <Brand onClick={()=>travel('arrival')}/>

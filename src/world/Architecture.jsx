@@ -154,6 +154,10 @@ function GothicGate({materials,progress}){
 function Courtyard({materials}){
   return <group>
     <Box position={[0,-5,-44]} size={[17,.8,47]} material={materials.floor}/>
+    <mesh position={[0,-4.5,-53]} rotation={[-Math.PI/2,0,0]} material={materials.darkMetal}><circleGeometry args={[3.8,32]}/></mesh>
+    <mesh position={[0,-4.35,-53]} rotation={[-Math.PI/2,0,0]} material={materials.brass}><torusGeometry args={[3.9,.12,8,48]}/></mesh>
+    <mesh position={[0,-1.9,-53]} material={materials.aura}><cylinderGeometry args={[1.8,2.3,2.4,12]}/></mesh>
+    <mesh position={[0,-.45,-53]} material={materials.brass}><icosahedronGeometry args={[.72,1]}/></mesh>
     {[[-21,-42],[21,-42],[-21,-63],[21,-63]].map(([x,z],i)=><Tower key={i} materials={materials} position={[x,-8,z]} height={25+(i%2)*4} radius={3.6} roofHeight={8}/>)}
     {[-1,1].map(s=><group key={s}>
       <Wall materials={materials} position={[s*17,-7,-53]} size={[3.7,20,68]} crenels={true}/>
@@ -206,6 +210,9 @@ function Chandelier({position,materials}){
 function GrandHall({materials,quality}){
  return <group position={[0,-8,-73]}>
    <Box position={[0,-.12,-2]} size={[29,.9,46]} material={materials.floor}/>
+    {[-1,1].map(s=><Box key={'aisle'+s} position={[s*4.8,.38,-2]} size={[.2,.035,42]} material={materials.brass}/>)}
+    <Box position={[0,.4,-2]} size={[7.2,.08,38]} material={materials.darkMetal}/>
+    <Box position={[0,.46,-2]} size={[6.8,.035,37.5]} material={materials.trim}/>
    {[-1,1].map(s=><group key={s}>
      <Wall materials={materials} position={[s*16.5,0,-3]} size={[3.3,32,47]} crenels={false}/>
      {[-21,-11,0,11,21].map(z=><HallPillar key={z} position={[s*11.7,0,z]} materials={materials}/>)}
@@ -213,9 +220,11 @@ function GrandHall({materials,quality}){
    </group>)}
    {[[-11,-11],[11,-11],[-11,11],[11,11]].map(([x,z],i)=><Banner key={i} materials={materials} position={[x,18,z]} rotation={[0,Math.PI/2,0]}/>)}
    <Box position={[0,31,-2]} size={[38,1.2,51]} material={materials.roof}/>
+    {[-10,0,10].map(x=><Box key={x} position={[x,29.8,-2]} size={[.55,1.2,49]} material={materials.wood}/>)}
    <Chandelier position={[0,27,3]} materials={materials}/>
    <Chandelier position={[0,27,-16]} materials={materials}/>
-   {quality==='high'&&<pointLight position={[0,17,-5]} color="#b88959" intensity={20} distance={35}/>}
+    {quality==='high'&&<pointLight position={[0,17,-5]} color="#b88959" intensity={20} distance={35}/>}
+    <pointLight position={[0,5,-20]} color="#8ea6b0" intensity={4} distance={18}/>
  </group>;
 }
 
@@ -286,6 +295,9 @@ export function LibraryDistrict({materials,quality}){
     <mesh position={[0,8,0]} material={materials.aura}>
       <icosahedronGeometry args={[2.1,1]}/>
     </mesh>
+    <mesh position={[0,.55,0]} rotation={[-Math.PI/2,0,0]} material={materials.darkMetal}><circleGeometry args={[5.8,48]}/></mesh>
+    <mesh position={[0,.58,0]} rotation={[-Math.PI/2,0,0]} material={materials.brass}><torusGeometry args={[5.9,.12,8,64]}/></mesh>
+    {[-1,1].map(s=><Box key={s} position={[s*7.8,15,0]} size={[.35,24,30]} material={materials.wood}/>)}
     <mesh position={[0,8,0]} material={materials.brass} rotation={[0,0,.4]}>
       <torusGeometry args={[3.1,.09,8,48]}/>
     </mesh>
