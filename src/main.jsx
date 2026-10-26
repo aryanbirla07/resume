@@ -62,21 +62,17 @@ function Brand({onClick}){
 function Eyebrow({children,number}){return <div className="eyebrow">{number&&<span className="eyebrow-number">{number}</span>}<span className="eyebrow-line"/>{children}</div>;}
 function ActionLink({href,children}){return href?<a href={href} target="_blank" rel="noreferrer" className="text-link">{children}<ArrowUpRight size={15}/></a>:null;}
 
-function ProjectGallery({projects,onProject}){
-  return <div className="project-gallery" aria-label="Selected projects">
+function ProjectStory({projects,onProject}){
+  return <div className="project-story" aria-label="Selected projects">
     {projects.slice(0,4).map((project,index)=>{
       const stack=displayList(project.stack);
       const content=<>
-        <span className="project-card-index">{displayText(project.number,String(index+1).padStart(2,'0'))}</span>
-        <span className="project-card-category">{displayText(project.category,'PROJECT')}</span>
-        <strong>{displayText(project.title,'Selected work')}</strong>
-        <span className="project-card-description">{displayText(project.description,'Project details coming soon.')}</span>
-        <span className="project-card-stack">{stack.length?stack.slice(0,3).join(' · '):'Details coming soon'}</span>
-        <span className="project-card-link">{project.href?'OPEN PROJECT':'URL TO BE ADDED'} {project.href?<ArrowUpRight size={16}/>:<span aria-hidden="true">—</span>}</span>
+        <div className="project-story-index">{displayText(project.number,String(index+1).padStart(2,'0'))}</div>
+        <div className="project-story-copy"><span className="project-story-category">{displayText(project.category,'PROJECT')}</span><h3>{displayText(project.title,'Selected work')}</h3><p>{displayText(project.description,'Project details coming soon.')}</p><div className="project-story-meta"><span>{stack.length?stack.join(' · '):'Details coming soon'}</span><span>{project.href?'VISIT PROJECT':'DETAILS IN ARCHIVE'} {project.href?<ArrowUpRight size={17}/>:<ArrowRight size={17}/>}</span></div></div>
       </>;
       return project.href?
-        <a key={project.id} className="project-card project-card-linkable" href={project.href} target="_blank" rel="noreferrer">{content}</a>:
-        <button key={project.id} className="project-card" onClick={()=>onProject(project)}>{content}</button>;
+        <a key={project.id} className="project-story-item" href={project.href} target="_blank" rel="noreferrer">{content}</a>:
+        <button key={project.id} className="project-story-item" onClick={()=>onProject(project)}>{content}</button>;
     })}
   </div>;
 }
@@ -200,9 +196,9 @@ function StageContent({chapter,progress,onTravel,onProject}){
     </DisplayCard>;
     case 'projects':return <section className="project-stage" aria-labelledby="project-stage-title">
       <div className="project-stage-heading"><div><Eyebrow number={chapter.index}>{chapter.tag}</Eyebrow><div className="fine-label">SELECTED PROJECTS</div><h2 id="project-stage-title">Built for<br/><em>the real world.</em></h2></div><span className="project-stage-location">{chapter.location}</span></div>
-      <p className="project-stage-lead">Four selected pieces, presented directly. Open a verified project link or choose a card to read the available details.</p>
-      <ProjectGallery projects={portfolio.projects} onProject={onProject}/>
-      <div className="project-stage-foot">SELECTED WORK <span>/</span> FOUR STORIES <span>/</span> DIRECT LINKS WHERE VERIFIED</div>
+      <p className="project-stage-lead">Scroll through the work. Each project arrives as its own chapter in the journey, with a direct destination when a verified link is available.</p>
+      <ProjectStory projects={portfolio.projects} onProject={onProject}/>
+      <div className="project-stage-foot">SCROLL TO READ <span>/</span> FOUR PROJECT CHAPTERS <span>/</span> DIRECT LINKS WHERE VERIFIED</div>
     </section>;
     case 'experience':return <DisplayCard chapter={chapter}>
       <div className="fine-label">AN EVOLVING PRACTICE</div><h2>Every chapter<br/><em>leaves a mark.</em></h2>
