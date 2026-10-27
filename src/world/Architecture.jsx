@@ -39,6 +39,15 @@ function Crown({radius=3,y=0,count=12,materials}){
   </group>;
 }
 
+function Buttress({position,rotation=[0,0,0],height=18,width=1.2,materials}){
+  return <group position={position} rotation={rotation}>
+    <mesh position={[0,height/2,0]} material={materials.stone} castShadow>
+      <coneGeometry args={[width*.5,width*1.9,height,4]}/>
+    </mesh>
+    <Box position={[0,height-.35,0]} size={[width*1.55,.7,width*1.55]} material={materials.trim}/>
+  </group>;
+}
+
 function Banner({position,rotation=[0,0,0],materials}){
   const group=useRef();const rand=position[0]*.19+position[2]*.01;
   useFrame(({clock})=>{if(group.current)group.current.rotation.y=Math.sin(clock.elapsedTime*1.65+rand)*.13;});
@@ -90,9 +99,16 @@ export function Tower({position=[0,0,0],radius=3.3,height=23,roofHeight=8,materi
         {topWindows&&i%2===0&&<Lancet materials={materials} position={[Math.sin(a)*(radius*.885+.13),height*.72,Math.cos(a)*(radius*.885+.13)]} rotation={[0,a,0]} scale={1.06}/>}
       </group>;
     })}
+    {Array.from({length:4},(_,i)=>{
+      const a=i*Math.PI/2;
+      return <Buttress key={'buttress'+i} position={[Math.sin(a)*radius*.78,0,Math.cos(a)*radius*.78]} rotation={[0,a,0]} height={height*.72} width={radius*.55} materials={materials}/>;
+    })}
     <Crown radius={radius*.9} y={height+.35} count={12} materials={materials}/>
     {roofHeight>0&&<mesh position={[0,height+roofHeight/2+.75,0]} material={materials.roof} castShadow>
-      <coneGeometry args={[radius*1.12,roofHeight,12]}/>
+      <coneGeometry args={[radius*1.18,roofHeight,12,2]}/>
+    </mesh>}
+    {roofHeight>0&&<mesh position={[0,height+.82,0]} material={materials.brass}>
+      <torusGeometry args={[radius*1.02,.12,8,32]}/>
     </mesh>}
     <mesh position={[0,height+roofHeight+1.0,0]} material={materials.brass}>
       <sphereGeometry args={[.31,10,10]}/>
@@ -111,7 +127,11 @@ function Wall({position, size, materials, crenels=true, windows=0}){
     {crenels&&Array.from({length:Math.floor(w/2.2)},(_,i)=>
       <Box key={i} position={[-w/2+.9+i*2.2,h+.56,0]} size={[1.13,1.12,d+.3]} material={materials.stone}/>)}
     {windows>0&&Array.from({length:windows},(_,i)=>
-      <Lancet key={i} materials={materials} position={[-w/2+w*(i+1)/(windows+1),h*.56,d/2+.08]} scale={1.25}/>)}
+      <group key={i} position={[-w/2+w*(i+1)/(windows+1),h*.56,d/2+.08]}>
+        <Box position={[0,0,-.09]} size={[1.2,2.8,.16]} material={materials.darkMetal}/>
+        <Lancet materials={materials} position={[0,0,.03]} scale={1.25}/>
+      </group>)}
+    {[-w/2+.8,w/2-.8].map((x,i)=><Buttress key={'wallbuttress'+i} position={[x,0,d*.58]} height={h*.72} width={.8} materials={materials}/>)}
   </group>;
 }
 
@@ -124,11 +144,21 @@ function GothicGate({materials,progress}){
     if(right.current)right.current.rotation.y=THREE.MathUtils.lerp(right.current.rotation.y,open*1.38,a);
   });
   return <group position={[0,0,-23]}>
+    <mesh position={[0,12.7,-.28]} material={materials.darkMetal}>
+      <torusGeometry args={[5.7,.28,10,48,Math.PI]}/>
+    </mesh>
+    <mesh position={[0,17.8,-.3]} material={materials.brass}>
+      <torusGeometry args={[5.95,.12,8,48,Math.PI]}/>
+    </mesh>
     {[-1,1].map(sign=><group key={sign} position={[sign*4.75,0,0]}>
       <Box position={[0,4.4,0]} size={[1.45,24,3.8]} material={materials.trim}/>
       <Box position={[-sign*.68,14,0]} size={[1.65,2.9,4.1]} rotation={[0,0,sign*.45]} material={materials.trim}/>
+      <Buttress position={[sign*-.8,0,1.9]} rotation={[0,sign*.12,0]} height={19} width={1.25} materials={materials}/>
     </group>)}
     <Box position={[0,17.7,0]} size={[12,4.4,3.8]} material={materials.stone}/>
+    <Box position={[0,20.15,0]} size={[8.4,.65,4.25]} material={materials.trim}/>
+    <Crown radius={5.7} y={20.85} count={8} materials={materials}/>
+    <Lancet materials={materials} position={[0,16.9,1.98]} scale={1.8}/>
     <Wall materials={materials} position={[-17.8,-8,0]} size={[22,23,3.8]} windows={3}/>
     <Wall materials={materials} position={[17.8,-8,0]} size={[22,23,3.8]} windows={3}/>
     <group ref={left} position={[-3.9,0,1.98]}>
@@ -148,6 +178,7 @@ function GothicGate({materials,progress}){
     <Torch materials={materials} position={[7.7,11,3.0]}/>
     <Banner position={[-13.4,12,2.26]} materials={materials}/>
     <Banner position={[13.4,12,2.26]} materials={materials}/>
+    <pointLight position={[0,14,3.5]} color="#a9c2cb" intensity={3.5} distance={18}/>
   </group>;
 }
 
